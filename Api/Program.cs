@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Api.Infrastructure;
+using DataAccess;
+using DataAccess.Repositories;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace Api
 {
@@ -13,7 +13,31 @@ namespace Api
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+
+            CreateDBIfNotExists(host);
+
+            host.Run();
+        }
+
+        private static void CreateDBIfNotExists(IHost host)
+        {
+            using (var scope = host.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                try
+                {
+                    var userRepository = services.GetRequiredService<IUserRepository>();
+
+                    DBInitializer.Initialize(userRepository);
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occured - DB Creation");
+                }
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

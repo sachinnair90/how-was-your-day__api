@@ -1,16 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Api.Infrastructure;
+using DataAccess;
+using DataAccess.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -28,7 +24,12 @@ namespace Api
         {
             services.AddControllers();
 
-            services.AddAuthentication().AddOAuth("hywd-auth", options => OAuthMiddleware.SetOAuth2Options(options));
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddDbContext<AppDBContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("HWYD")));
+
+            // Configurations.EmailRegex = Configuration.GetSection("AppSettings").GetValue(typeof(string), "EmailRegex").ToString();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
