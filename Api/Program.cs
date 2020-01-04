@@ -1,10 +1,11 @@
 using Api.Infrastructure;
 using DataAccess;
-using DataAccess.Repositories;
+using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Api
@@ -22,21 +23,22 @@ namespace Api
 
         private static void CreateDBIfNotExists(IHost host)
         {
-            using (var scope = host.Services.CreateScope())
+            using var scope = host.Services.CreateScope();
+
+            var services = scope.ServiceProvider;
+
+            try
             {
-                var services = scope.ServiceProvider;
+                var unitOfWork = services.GetRequiredService<IUnitOfWork>();
+                var hashHelpers = services.GetRequiredService<IHashHelpers>();
+                var options = services.GetRequiredService<IOptions<Configurations>>();
 
-                try
-                {
-                    var userRepository = services.GetRequiredService<IUserRepository>();
-
-                    DBInitializer.Initialize(userRepository);
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occured - DB Creation");
-                }
+                DBInitializer.Initialize(unitOfWork, hashHelpers, options);
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occured - DB Creation");
             }
         }
 

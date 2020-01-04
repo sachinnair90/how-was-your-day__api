@@ -2,10 +2,10 @@ using Xunit;
 
 namespace BusinessLogic.Tests
 {
-    public class UnitTest1
+    public class UserService
     {
         [Fact]
-        public void Test1()
+        public void Get()
         {
 
         }

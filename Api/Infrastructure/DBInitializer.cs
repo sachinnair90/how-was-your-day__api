@@ -1,39 +1,36 @@
 ﻿using DataAccess;
 using DataAccess.Entities;
-using DataAccess.Repositories;
+using Infrastructure.Interfaces;
+using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Api.Infrastructure
 {
     public static class DBInitializer
     {
-        public static void Initialize(IUserRepository userRepository)
+        public static void Initialize(IUnitOfWork unitOfWork, IHashHelpers hashHelpers, IOptions<Configurations> options)
         {
-            if(userRepository.GetAll().Any())
+            if (unitOfWork.UserRepository.AnyUserExists())
             {
                 return;
             }
 
-            var defaultPassword = "newPassword";
-
-            byte[] passwordHash, passwordSalt;
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(defaultPassword));
-            }
+            var passwordHash = hashHelpers.GetNewHash(out var salt, options.Value.DefaultPassword);
 
             var users = new User[]
             {
-                new User { FirstName = "Sachin", LastName = "Nair", Email = "sachin.nair@devon.nl", CreatedAt = DateTime.Now, UpdatedAt = DateTime.Now, PasswordHash = passwordHash, PasswordSalt = passwordSalt }
+                new User {
+                    FirstName = "Sachin",
+                    LastName = "Nair", 
+                    Email = "sachin.nair@devon.nl", 
+                    CreatedAt = DateTime.Now, 
+                    UpdatedAt = DateTime.Now, 
+                    PasswordHash = passwordHash, 
+                    PasswordSalt = salt 
+                }
             };
 
-            userRepository.AddAll(users);
-
-            var saveResult = userRepository.SaveAsync().Result;            
+            unitOfWork.UserRepository.Add(users);
         }
     }
 }

@@ -1,6 +1,8 @@
 using Api.Infrastructure;
 using DataAccess;
 using DataAccess.Repositories;
+using Infrastructure;
+using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -23,13 +25,17 @@ namespace Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddOptions();
 
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+            services.AddScoped<IHashHelpers, HashHelpers>();
 
             services.AddDbContext<AppDBContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("HWYD")));
 
-            // Configurations.EmailRegex = Configuration.GetSection("AppSettings").GetValue(typeof(string), "EmailRegex").ToString();
+            services.Configure<Configurations>(Configuration.GetSection("AppSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,6 +2,7 @@
 {
     public class Configurations
     {
-        public static string EmailRegex = "";
+        public string EmailRegex { get; set; }
+        public string DefaultPassword { get; set; }
     }
 }
