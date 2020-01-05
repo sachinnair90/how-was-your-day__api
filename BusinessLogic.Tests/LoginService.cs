@@ -1,44 +1,75 @@
 using AutoFixture;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using FluentAssertions;
 using System.Security.Claims;
+using DataAccess;
+using BusinessLogic.Interfaces;
+using BusinessLogic.DTO;
+using AutoMapper;
+using Moq;
+using DataAccess.Repositories;
+using Infrastructure.Interfaces;
+using Infrastructure;
+using Microsoft.Extensions.Options;
 
 namespace BusinessLogic.Tests
 {
     public class LoginService
     {
-        private readonly ILoginService loginService;
-        private readonly IList<DataAccess.Entities.User> users;
-        private readonly ITokenGenerator tokenGenerator;
-
-        public LoginService()
-        {
-            loginService = SetupData(out IEnumerable<DataAccess.Entities.User> _users);
-            users = _users.ToList();
-        }
+        public LoginService() { }
 
         [Fact]
         public void Authenticate_User_With_Credentials()
         {
+            var loginService = SetupData(out DataAccess.Entities.User user, out var token);
+
             var fixture = new Fixture();
-            var _user = users[0];
-            var email = _user.Email;
+            var email = user.Email;
             var password = fixture.Create<string>();
 
-            User user = loginService.Authenticate(email, password);
+            AuthenticatedUser authenticatedUser = loginService.Authenticate(email, password);
 
-            User expectedUser = new User
+            AuthenticatedUser expectedUser = new AuthenticatedUser
             {
-                Id = _user.Id,
-                FirstName = _user.FirstName,
-                LastName = _user.LastName,
-                Email = _user.Email,
-                Token = tokenGenerator.GetToken(fixture.CreateMany<Claim>().ToArray(), fixture.Create<int>(), fixture.Create<string>())
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Token = token
             };
 
-            user.Should().BeEquivalentTo(expectedUser);
+            authenticatedUser.Should().BeEquivalentTo(expectedUser);
+        }
+
+        private ILoginService SetupData(out DataAccess.Entities.User user, out string token)
+        {
+            var mockMapper = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new DataMapper());
+            });
+
+            var mapper = mockMapper.CreateMapper();
+
+            var fixture = new Fixture();
+
+            user = fixture.Create<DataAccess.Entities.User>();
+            token = fixture.Create<string>();
+
+            var repoMock = fixture.Create<Mock<UserRepository>>();
+            var tokenGeneratorMock = fixture.Create<Mock<TokenGenerator>>();
+
+            repoMock.Setup(x => x.GetUserFromCredentials(It.IsAny<string>(), It.IsAny<string>())).Returns(user);
+            tokenGeneratorMock.Setup(x => x.GetToken(It.IsAny<Claim[]>(), It.IsAny<int>(), It.IsAny<string>())).Returns(token);
+
+            fixture.Register<IUserRepository>(() => repoMock.Object);
+            fixture.Register<ITokenGenerator>(() => tokenGeneratorMock.Object);
+
+            var uow = fixture.Create<IUnitOfWork>();
+
+            var _loginService = new BusinessLogic.LoginService(uow, mapper, tokenGeneratorMock.Object, fixture.Create<IOptions<Configuration>>());
+
+            return _loginService;
         }
     }
 }
