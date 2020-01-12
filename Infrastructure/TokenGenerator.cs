@@ -16,14 +16,18 @@ namespace Infrastructure
             _tokenHandler = tokenHandler;
         }
 
-        public string GetToken(Claim[] claims, int expiryDays, string secret)
+        public string GetToken(Claim[] claims, int expiryDays, string key)
         {
-            var key = Encoding.ASCII.GetBytes(secret);
+            _ = claims ?? throw new ArgumentNullException(nameof(claims));
+
+            if (string.IsNullOrEmpty(key)) throw new ArgumentException("message", nameof(key));
+
+            var keyBytes = Encoding.ASCII.GetBytes(key);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(expiryDays),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = _tokenHandler.CreateToken(tokenDescriptor);

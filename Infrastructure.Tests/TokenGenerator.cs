@@ -1,10 +1,12 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Kernel;
+using AutoFixture.Xunit2;
 using FluentAssertions;
 using Infrastructure.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -40,6 +42,22 @@ namespace Infrastructure.Tests
             var result = _tokenGenerator.GetToken(new []{ claim }, fixture.Create<int>(), fixture.Create<string>());
 
             result.Should().BeEquivalentTo(tokenString);
+        }
+
+        [Fact]
+        public void Throw_Argument_Null_Exception_If_Claims_Were_Not_Supplied()
+        {
+            Action action = () => _tokenGenerator.GetToken(null, default, "dummy");
+
+            action.Should().ThrowExactly<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void Throw_Argument_Exception_If_Secret_Was_Not_Supplied()
+        {
+            Action action = () => _tokenGenerator.GetToken(new[] { new Claim(ClaimTypes.Name, "") }, default, null);
+
+            action.Should().ThrowExactly<ArgumentException>();
         }
     }
 }
