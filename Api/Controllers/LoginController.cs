@@ -37,5 +37,11 @@ namespace Api.Controllers
 
             return result;
         }
+
+        [HttpGet]
+        public IActionResult AuthorizedAction()
+        {
+            return Ok();
+        }
     }
 }

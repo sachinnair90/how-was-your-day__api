@@ -18,6 +18,7 @@ using BusinessLogic.Interfaces;
 using BusinessLogic;
 using AutoMapper;
 using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
 
 namespace Api
 {
@@ -36,15 +37,7 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(options =>
-            {
-                var defaultPolicy =
-                new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-
-                options.Filters.Add(new AuthorizeFilter(defaultPolicy));
-            });
+            AddControllers(services);
 
             services.AddOptions();
 
@@ -54,14 +47,14 @@ namespace Api
                 options.UseNpgsql(Configuration.GetConnectionString(DB_NAME)));
 
             var appSettingsSection = Configuration.GetSection(CONFIGURATION_KEY);
+
             services.Configure<Configuration>(appSettingsSection);
 
             AddAuthentication(services, appSettingsSection);
 
             services.AddAutoMapper(typeof(DataMapper));
 
-            // Register the Swagger generator, defining 1 or more Swagger documents
-            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "How was your day API", Version = "v1" }));
+            AddSwagger(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -83,6 +76,12 @@ namespace Api
 
             app.UseRouting();
 
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
@@ -103,7 +102,7 @@ namespace Api
             services.AddScoped<ITokenGenerator, TokenGenerator>();
 
             // Framework and others
-            services.AddScoped((options) => new JwtSecurityTokenHandler());
+            services.AddScoped(_ => new JwtSecurityTokenHandler());
         }
 
         private static void AddAuthentication(IServiceCollection services, IConfigurationSection appSettingsSection)
@@ -127,6 +126,53 @@ namespace Api
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
+            });
+        }
+
+        private static void AddControllers(IServiceCollection services)
+        {
+            services.AddControllers(options =>
+            {
+                var defaultPolicy =
+                new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.Filters.Add(new AuthorizeFilter(defaultPolicy));
+            });
+        }
+
+        private static void AddSwagger(IServiceCollection services)
+        {
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "How was your day API", Version = "v1" });
+                c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+                {
+                    Description = "JWT Bearer Auth",
+                    In = ParameterLocation.Header,
+                    Name = JwtBearerDefaults.AuthenticationScheme,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower()
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            },
+                            Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
+                            Name = JwtBearerDefaults.AuthenticationScheme,
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
     }
