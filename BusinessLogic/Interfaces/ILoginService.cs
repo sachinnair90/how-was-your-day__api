@@ -1,9 +1,10 @@
 ﻿using BusinessLogic.DTO;
+using System.Threading.Tasks;
 
 namespace BusinessLogic.Interfaces
 {
     public interface ILoginService
     {
-        AuthenticatedUser Authenticate(string email, string password);
+        Task<AuthenticatedUser> Authenticate(string email, string password);
     }
 }

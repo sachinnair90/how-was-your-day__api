@@ -29,7 +29,7 @@ namespace DataAccess.Tests
         [Fact]
         public void Check_If_No_User_Exists()
         {
-            userRepository.AnyUserExists().Should().BeFalse();
+            userRepository.AnyUserExists().GetAwaiter().GetResult().Should().BeFalse();
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace DataAccess.Tests
         {
             AddUsersToDB(out _);
 
-            userRepository.AnyUserExists().Should().BeTrue();
+            userRepository.AnyUserExists().GetAwaiter().GetResult().Should().BeTrue();
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace DataAccess.Tests
             var users = AddUsersToDB(out var defaultPassword);
 
             // Act
-            User user = userRepository.GetUserFromCredentials(users[0].Email, defaultPassword);
+            var user = userRepository.GetUserFromCredentials(users[0].Email, defaultPassword).GetAwaiter().GetResult();
 
             // Assert
             user.Should().BeEquivalentTo(users[0]);
@@ -56,7 +56,7 @@ namespace DataAccess.Tests
         [Fact]
         public void Throw_Argument_Null_Exception_If_User_Credentials_Are_Invalid()
         {
-            Action getUser = () => userRepository.GetUserFromCredentials(null, null);
+            Action getUser = () => userRepository.GetUserFromCredentials(null, null).GetAwaiter().GetResult();
 
             getUser.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -68,7 +68,7 @@ namespace DataAccess.Tests
             var users = AddUsersToDB(out _);
 
             // Act
-            Action getUser = () => userRepository.GetUserFromCredentials(users[0].Email, new Fixture().Create<string>());
+            Action getUser = () => userRepository.GetUserFromCredentials(users[0].Email, new Fixture().Create<string>()).GetAwaiter().GetResult();
 
             // Assert
             getUser.Should().ThrowExactly<InvalidUserPasswordException>();
@@ -83,7 +83,7 @@ namespace DataAccess.Tests
             var fixture = new Fixture();
 
             // Act
-            Action getUser = () => userRepository.GetUserFromCredentials(fixture.Create<MailAddress>().Address, fixture.Create<string>());
+            Action getUser = () => userRepository.GetUserFromCredentials(fixture.Create<MailAddress>().Address, fixture.Create<string>()).GetAwaiter().GetResult();
 
             // Assert
             getUser.Should().ThrowExactly<UserNotFoundException>();

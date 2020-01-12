@@ -1,8 +1,9 @@
 ﻿using DataAccess.Entities;
 using DataAccess.Exceptions;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
@@ -15,18 +16,18 @@ namespace DataAccess.Repositories
             this.hashHelpers = hashHelpers;
         }
 
-        public bool AnyUserExists()
+        public async Task<bool> AnyUserExists()
         {
-            return GetQueryable().Any();
+            return await GetQueryable().AnyAsync();
         }
 
-        public User GetUserFromCredentials(string email, string password)
+        public async Task<User> GetUserFromCredentials(string email, string password)
         {
             if (email == null) throw new ArgumentNullException(nameof(email));
 
             if (password == null) throw new ArgumentNullException(nameof(password));
 
-            var user = GetQueryable().SingleOrDefault(x => x.Email.Equals(email, StringComparison.InvariantCultureIgnoreCase));
+            var user = await GetQueryable().SingleOrDefaultAsync(x => x.Email.Equals(email, StringComparison.InvariantCultureIgnoreCase));
 
             if (user == null) throw new UserNotFoundException();
 

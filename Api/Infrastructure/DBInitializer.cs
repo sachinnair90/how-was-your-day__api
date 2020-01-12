@@ -10,12 +10,12 @@ namespace Api.Infrastructure
     {
         public static void Initialize(IUnitOfWork unitOfWork, IHashHelpers hashHelpers, IOptions<Configurations> options)
         {
-            if (unitOfWork.UserRepository.AnyUserExists())
+            if (unitOfWork.UserRepository.AnyUserExists().GetAwaiter().GetResult())
             {
                 return;
             }
 
-            var passwordHash = hashHelpers.GetNewHash(out var salt, options.Value.DefaultPassword);
+            var passwordHash = hashHelpers.GetNewHash(out var salt, options.Value.Security.DefaultPassword);
 
             var users = new User[]
             {

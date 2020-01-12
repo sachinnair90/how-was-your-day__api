@@ -1,5 +1,4 @@
 using AutoFixture;
-using System.Linq;
 using Xunit;
 using FluentAssertions;
 using System.Security.Claims;
@@ -12,6 +11,10 @@ using DataAccess.Repositories;
 using Infrastructure.Interfaces;
 using Infrastructure;
 using Microsoft.Extensions.Options;
+using AutoFixture.AutoMoq;
+using System;
+using DataAccess.Exceptions;
+using BusinessLogic.Exceptions;
 
 namespace BusinessLogic.Tests
 {
@@ -22,15 +25,23 @@ namespace BusinessLogic.Tests
         [Fact]
         public void Authenticate_User_With_Credentials()
         {
-            var loginService = SetupData(out DataAccess.Entities.User user, out var token);
+            var fixtureMock = new Fixture().Customize(new AutoMoqCustomization());
+            var user = fixtureMock.Create<DataAccess.Entities.User>();
+            var token = fixtureMock.Create<string>();
+
+            var repoMock = fixtureMock.Create<Mock<IUserRepository>>();
+
+            repoMock.Setup(x => x.GetUserFromCredentials(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(user);
+
+            var loginService = SetupData(repoMock, token);
 
             var fixture = new Fixture();
             var email = user.Email;
             var password = fixture.Create<string>();
 
-            AuthenticatedUser authenticatedUser = loginService.Authenticate(email, password);
+            var authenticatedUser = loginService.Authenticate(email, password).GetAwaiter().GetResult();
 
-            AuthenticatedUser expectedUser = new AuthenticatedUser
+            var expectedUser = new AuthenticatedUser
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
@@ -42,7 +53,51 @@ namespace BusinessLogic.Tests
             authenticatedUser.Should().BeEquivalentTo(expectedUser);
         }
 
-        private ILoginService SetupData(out DataAccess.Entities.User user, out string token)
+        [Fact]
+        public void Should_Throw_Exception_For_User_With_Invalid_Credentials()
+        {
+            var fixtureMock = new Fixture().Customize(new AutoMoqCustomization());
+            var user = fixtureMock.Create<DataAccess.Entities.User>();
+            var token = fixtureMock.Create<string>();
+
+            var repoMock = fixtureMock.Create<Mock<IUserRepository>>();
+
+            repoMock.Setup(x => x.GetUserFromCredentials(It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new InvalidUserPasswordException());
+
+            var loginService = SetupData(repoMock, token);
+
+            var fixture = new Fixture();
+            var email = user.Email;
+            var password = fixture.Create<string>();
+
+            Action action = () => loginService.Authenticate(email, password).GetAwaiter().GetResult();
+
+            action.Should().ThrowExactly<InvalidCredentialsException>();
+        }
+
+        [Fact]
+        public void Should_Throw_Exception_For_Non_Existent_Email()
+        {
+            var fixtureMock = new Fixture().Customize(new AutoMoqCustomization());
+            var user = fixtureMock.Create<DataAccess.Entities.User>();
+            var token = fixtureMock.Create<string>();
+
+            var repoMock = fixtureMock.Create<Mock<IUserRepository>>();
+
+            repoMock.Setup(x => x.GetUserFromCredentials(It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new DataAccess.Exceptions.UserNotFoundException());
+
+            var loginService = SetupData(repoMock, token);
+
+            var fixture = new Fixture();
+            var email = user.Email;
+            var password = fixture.Create<string>();
+
+            Action action = () => loginService.Authenticate(email, password).GetAwaiter().GetResult();
+
+            action.Should().ThrowExactly<Exceptions.UserNotFoundException>();
+        }
+
+        private ILoginService SetupData(Mock<IUserRepository> repoMock, string token = null)
         {
             var mockMapper = new MapperConfiguration(cfg =>
             {
@@ -51,21 +106,15 @@ namespace BusinessLogic.Tests
 
             var mapper = mockMapper.CreateMapper();
 
-            var fixture = new Fixture();
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            user = fixture.Create<DataAccess.Entities.User>();
-            token = fixture.Create<string>();
-
-            var repoMock = fixture.Create<Mock<UserRepository>>();
-            var tokenGeneratorMock = fixture.Create<Mock<TokenGenerator>>();
-
-            repoMock.Setup(x => x.GetUserFromCredentials(It.IsAny<string>(), It.IsAny<string>())).Returns(user);
+            var tokenGeneratorMock = fixture.Create<Mock<ITokenGenerator>>();
             tokenGeneratorMock.Setup(x => x.GetToken(It.IsAny<Claim[]>(), It.IsAny<int>(), It.IsAny<string>())).Returns(token);
 
-            fixture.Register<IUserRepository>(() => repoMock.Object);
-            fixture.Register<ITokenGenerator>(() => tokenGeneratorMock.Object);
+            fixture.Register(() => repoMock.Object);
+            fixture.Register(() => tokenGeneratorMock.Object);
 
-            var uow = fixture.Create<IUnitOfWork>();
+            var uow = fixture.Create<UnitOfWork>();
 
             var _loginService = new BusinessLogic.LoginService(uow, mapper, tokenGeneratorMock.Object, fixture.Create<IOptions<Configuration>>());
 

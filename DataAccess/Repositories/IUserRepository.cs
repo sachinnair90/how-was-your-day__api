@@ -1,10 +1,11 @@
 ﻿using DataAccess.Entities;
+using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
     public interface IUserRepository : IRepository<User>
     {
-        bool AnyUserExists();
-        User GetUserFromCredentials(string email, string password);
+        Task<bool> AnyUserExists();
+        Task<User> GetUserFromCredentials(string email, string password);
     }
 }
