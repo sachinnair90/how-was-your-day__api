@@ -1,14 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
-using AutoFixture.Kernel;
-using AutoFixture.Xunit2;
 using FluentAssertions;
 using Infrastructure.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using Xunit;
 
