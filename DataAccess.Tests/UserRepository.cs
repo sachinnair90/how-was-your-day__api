@@ -17,19 +17,19 @@ namespace DataAccess.Tests
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly DbContext _dbContext;
-        private readonly IUserRepository userRepository;
+        private readonly IUserRepository _userRepository;
 
         public UserRepository()
         {
             _unitOfWork = SetupRepository(out var dbContext);
             _dbContext = dbContext;
-            userRepository = _unitOfWork.UserRepository;
+            _userRepository = _unitOfWork.UserRepository;
         }
 
         [Fact]
         public void Check_If_No_User_Exists()
         {
-            userRepository.AnyUserExists().GetAwaiter().GetResult().Should().BeFalse();
+            _userRepository.AnyUserExists().GetAwaiter().GetResult().Should().BeFalse();
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace DataAccess.Tests
         {
             AddUsersToDB(out _);
 
-            userRepository.AnyUserExists().GetAwaiter().GetResult().Should().BeTrue();
+            _userRepository.AnyUserExists().GetAwaiter().GetResult().Should().BeTrue();
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace DataAccess.Tests
             var users = AddUsersToDB(out var defaultPassword);
 
             // Act
-            var user = userRepository.GetUserFromCredentials(users[0].Email, defaultPassword).GetAwaiter().GetResult();
+            var user = _userRepository.GetUserFromCredentials(users[0].Email, defaultPassword).GetAwaiter().GetResult();
 
             // Assert
             user.Should().BeEquivalentTo(users[0]);
@@ -56,7 +56,7 @@ namespace DataAccess.Tests
         [Fact]
         public void Throw_Argument_Null_Exception_If_User_Credentials_Are_Invalid()
         {
-            Action getUser = () => userRepository.GetUserFromCredentials(null, null).GetAwaiter().GetResult();
+            Action getUser = () => _userRepository.GetUserFromCredentials(null, null).GetAwaiter().GetResult();
 
             getUser.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -68,7 +68,7 @@ namespace DataAccess.Tests
             var users = AddUsersToDB(out _);
 
             // Act
-            Action getUser = () => userRepository.GetUserFromCredentials(users[0].Email, new Fixture().Create<string>()).GetAwaiter().GetResult();
+            Action getUser = () => _userRepository.GetUserFromCredentials(users[0].Email, new Fixture().Create<string>()).GetAwaiter().GetResult();
 
             // Assert
             getUser.Should().ThrowExactly<InvalidUserPasswordException>();
@@ -83,7 +83,7 @@ namespace DataAccess.Tests
             var fixture = new Fixture();
 
             // Act
-            Action getUser = () => userRepository.GetUserFromCredentials(fixture.Create<MailAddress>().Address, fixture.Create<string>()).GetAwaiter().GetResult();
+            Action getUser = () => _userRepository.GetUserFromCredentials(fixture.Create<MailAddress>().Address, fixture.Create<string>()).GetAwaiter().GetResult();
 
             // Assert
             getUser.Should().ThrowExactly<UserNotFoundException>();

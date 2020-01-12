@@ -1,5 +1,6 @@
 ﻿using DataAccess;
 using DataAccess.Entities;
+using Infrastructure;
 using Infrastructure.Interfaces;
 using Microsoft.Extensions.Options;
 using System;
@@ -8,7 +9,7 @@ namespace Api.Infrastructure
 {
     public static class DBInitializer
     {
-        public static void Initialize(IUnitOfWork unitOfWork, IHashHelpers hashHelpers, IOptions<Configurations> options)
+        public static void Initialize(IUnitOfWork unitOfWork, IHashHelpers hashHelpers, IOptions<Configuration> options)
         {
             if (unitOfWork.UserRepository.AnyUserExists().GetAwaiter().GetResult())
             {

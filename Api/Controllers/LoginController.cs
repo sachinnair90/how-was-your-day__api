@@ -20,12 +20,12 @@ namespace Api.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody]string email, [FromBody]string password)
+        public async Task<IActionResult> Login([FromBody]UserAuthenticationParameters authenticationParameters)
         {
             IActionResult result;
             try
             {
-                result = Ok(await _loginService.Authenticate(email, password).ConfigureAwait(false));
+                result = Ok(await _loginService.Authenticate(authenticationParameters.Email, authenticationParameters.Password).ConfigureAwait(false));
             }
             catch (InvalidCredentialsException)
             {

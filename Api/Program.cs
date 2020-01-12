@@ -1,5 +1,6 @@
 using Api.Infrastructure;
 using DataAccess;
+using Infrastructure;
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ namespace Api
             {
                 var unitOfWork = services.GetRequiredService<IUnitOfWork>();
                 var hashHelpers = services.GetRequiredService<IHashHelpers>();
-                var options = services.GetRequiredService<IOptions<Configurations>>();
+                var options = services.GetRequiredService<IOptions<Configuration>>();
 
                 DBInitializer.Initialize(unitOfWork, hashHelpers, options);
             }

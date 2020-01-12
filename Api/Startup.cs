@@ -1,4 +1,3 @@
-using Api.Infrastructure;
 using DataAccess;
 using DataAccess.Repositories;
 using Infrastructure;
@@ -39,7 +38,7 @@ namespace Api
                 options.UseNpgsql(Configuration.GetConnectionString(DB_NAME)));
 
             var appSettingsSection = Configuration.GetSection(CONFIGURATION_KEY);
-            services.Configure<Configurations>(appSettingsSection);
+            services.Configure<Configuration>(appSettingsSection);
 
             AddAuthentication(services, appSettingsSection);
         }
@@ -55,7 +54,7 @@ namespace Api
         private static void AddAuthentication(IServiceCollection services, IConfigurationSection appSettingsSection)
         {
             // configure jwt authentication
-            var security = appSettingsSection.Get<Security>();
+            var security = appSettingsSection.Get<Configuration>().Security;
             var key = Encoding.ASCII.GetBytes(security.JwtSecret);
             services.AddAuthentication(x =>
             {
