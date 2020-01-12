@@ -95,7 +95,7 @@ namespace DataAccess.Tests
             var options = new DbContextOptionsBuilder<AppDBContext>()
                 .UseInMemoryDatabase(databaseName: nameof(AppDBContext))
                 .Options;
-            
+
             dbContext = new AppDBContext(options);
 
             dbContext.Database.EnsureCreated();
@@ -158,7 +158,7 @@ namespace DataAccess.Tests
         ~UserRepository()
         {
             Dispose(false);
-        } 
+        }
         #endregion
     }
 }

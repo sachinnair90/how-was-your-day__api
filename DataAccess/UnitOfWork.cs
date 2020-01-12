@@ -14,7 +14,6 @@ namespace DataAccess
             UserRepository = userRepository;
         }
 
-
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();

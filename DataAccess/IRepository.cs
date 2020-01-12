@@ -2,7 +2,7 @@
 
 namespace DataAccess
 {
-    public interface IRepository<TEntity> where TEntity:class, new()
+    public interface IRepository<TEntity> where TEntity : class, new()
     {
         IEnumerable<TEntity> GetAll();
 

@@ -59,7 +59,7 @@ namespace Infrastructure.Tests
             var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(givenString));
 
             hmac.Dispose();
-            
+
             bool isValidHash = hashHelpers.CompareHash(string.Concat(givenString, char.MinValue), salt, hash);
 
             isValidHash.Should().BeFalse();

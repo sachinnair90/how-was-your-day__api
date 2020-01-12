@@ -11,11 +11,11 @@ namespace DataAccess.Entities
         public int Id { get; set; }
 
         [Required]
-        [StringLength(50,MinimumLength =1)]
+        [StringLength(50, MinimumLength = 1)]
         public string FirstName { get; set; }
 
         [Required]
-        [StringLength(50, MinimumLength =1)]
+        [StringLength(50, MinimumLength = 1)]
         public string LastName { get; set; }
 
         [Required]

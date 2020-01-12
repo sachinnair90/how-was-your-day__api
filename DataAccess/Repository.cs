@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DataAccess
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity:class, new()
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {
         private readonly AppDBContext _context;
         public Repository(AppDBContext context)

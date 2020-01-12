@@ -53,8 +53,7 @@ namespace BusinessLogic
                 new Claim(ClaimTypes.Surname, authenticatedUser.LastName),
                 new Claim(ClaimTypes.Email, authenticatedUser.Email),
                 new Claim(ClaimTypes.NameIdentifier, authenticatedUser.Id.ToString())
-
-            }, options.Value.MaxPasswordExpiryDays, options.Value.Security.JwtSecret);
+            }, options.Value.TokenExpiryDays, options.Value.Security.JwtSecret);
 
             return authenticatedUser;
         }

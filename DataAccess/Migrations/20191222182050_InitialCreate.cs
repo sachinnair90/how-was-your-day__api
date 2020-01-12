@@ -22,10 +22,7 @@ namespace DataAccess.Migrations
                     CreatedAt = table.Column<DateTime>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.Id);
-                });
+                constraints: table => table.PrimaryKey("PK_User", x => x.Id));
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

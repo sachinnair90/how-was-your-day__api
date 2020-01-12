@@ -1,3 +1,4 @@
+using Api.Parameters;
 using AutoFixture;
 using BusinessLogic.DTO;
 using BusinessLogic.Exceptions;
@@ -24,13 +25,13 @@ namespace Api.Tests
         {
             var fixture = new Fixture();
             var authenticatedUser = fixture.Create<AuthenticatedUser>();
-            
+
             _service.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(authenticatedUser);
 
-            var result = _controller.Login(fixture.Create<string>(), fixture.Create<string>()).GetAwaiter().GetResult() as OkObjectResult;
+            var result = _controller.Login(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult() as OkObjectResult;
 
-            (result.Value as AuthenticatedUser).Should().BeEquivalentTo(authenticatedUser);
+            (result.Value as AuthenticatedUser)?.Should().BeEquivalentTo(authenticatedUser);
         }
 
         [Fact]
@@ -41,7 +42,7 @@ namespace Api.Tests
             _service.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws<InvalidCredentialsException>();
 
-            var result = _controller.Login(fixture.Create<string>(), fixture.Create<string>()).GetAwaiter().GetResult();
+            var result = _controller.Login(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult();
 
             result.Should().BeOfType<UnauthorizedResult>();
         }
@@ -54,7 +55,7 @@ namespace Api.Tests
             _service.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws<UserNotFoundException>();
 
-            var result = _controller.Login(fixture.Create<string>(), fixture.Create<string>()).GetAwaiter().GetResult();
+            var result = _controller.Login(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult();
 
             result.Should().BeOfType<NotFoundResult>();
         }
@@ -65,7 +66,7 @@ namespace Api.Tests
             _service = new Mock<ILoginService>();
 
             _controller = new Controllers.LoginController(_service.Object);
-        } 
+        }
         #endregion
     }
 }

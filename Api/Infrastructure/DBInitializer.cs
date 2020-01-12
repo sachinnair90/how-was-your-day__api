@@ -22,12 +22,12 @@ namespace Api.Infrastructure
             {
                 new User {
                     FirstName = "Sachin",
-                    LastName = "Nair", 
-                    Email = "sachin.nair@devon.nl", 
-                    CreatedAt = DateTime.Now, 
-                    UpdatedAt = DateTime.Now, 
-                    PasswordHash = passwordHash, 
-                    PasswordSalt = salt 
+                    LastName = "Nair",
+                    Email = "sachin.nair@devon.nl",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    PasswordHash = passwordHash,
+                    PasswordSalt = salt
                 }
             };
 

@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Api.Controllers
+namespace Api.Parameters
 {
     public class UserAuthenticationParameters
     {
         [Required, EmailAddress]
-        public string Email { get; internal set; }
+        public string Email { get; set; }
 
         [Required, MinLength(8)]
-        public string Password { get; internal set; }
+        public string Password { get; set; }
     }
 }

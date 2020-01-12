@@ -20,8 +20,6 @@ namespace BusinessLogic.Tests
 {
     public class LoginService
     {
-        public LoginService() { }
-
         [Fact]
         public void Authenticate_User_With_Credentials()
         {
@@ -99,10 +97,7 @@ namespace BusinessLogic.Tests
 
         private ILoginService SetupData(Mock<IUserRepository> repoMock, string token = null)
         {
-            var mockMapper = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new DataMapper());
-            });
+            var mockMapper = new MapperConfiguration(cfg => cfg.AddProfile(new DataMapper()));
 
             var mapper = mockMapper.CreateMapper();
 
@@ -116,9 +111,9 @@ namespace BusinessLogic.Tests
 
             var uow = fixture.Create<UnitOfWork>();
 
-            var _loginService = new BusinessLogic.LoginService(uow, mapper, tokenGeneratorMock.Object, fixture.Create<IOptions<Configuration>>());
+            var options = Options.Create(fixture.Create<Configuration>());
 
-            return _loginService;
+            return new BusinessLogic.LoginService(uow, mapper, tokenGeneratorMock.Object, options);
         }
     }
 }

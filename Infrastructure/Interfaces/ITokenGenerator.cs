@@ -4,6 +4,6 @@ namespace Infrastructure.Interfaces
 {
     public interface ITokenGenerator
     {
-        string GetToken(Claim[] claim, int maxPasswordExpiryDays, string secret);
+        string GetToken(Claim[] claim, int expiryDays, string secret);
     }
 }

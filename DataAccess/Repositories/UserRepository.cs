@@ -27,7 +27,7 @@ namespace DataAccess.Repositories
 
             if (password == null) throw new ArgumentNullException(nameof(password));
 
-            var user = await GetQueryable().SingleOrDefaultAsync(x => x.Email.Equals(email, StringComparison.InvariantCultureIgnoreCase));
+            var user = await GetQueryable().SingleOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
 
             if (user == null) throw new UserNotFoundException();
 
