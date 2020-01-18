@@ -9,11 +9,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-    - name: Setup .NET Core if needed
-      uses: actions/setup-dotnet@v1.2.0
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.0.100
-      if: matrix.os == 'ubuntu-latest'
-    - uses: actions/checkout@v1
+        dotnet-version: 3.1.100
+    - uses: actions/checkout@v2
     - name: Build with dotnet
       run: dotnet build ./how-was-your-day.sln --configuration Release
