@@ -32,6 +32,8 @@ namespace Api.Infrastructure
             };
 
             unitOfWork.UserRepository.Add(users);
+
+            unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
         }
     }
 }
