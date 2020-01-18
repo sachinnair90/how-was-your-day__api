@@ -16,3 +16,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build with dotnet
       run: dotnet build ./how-was-your-day.sln --configuration Release
+    - name: Run tests
+      run: dotnet test --filter tests
