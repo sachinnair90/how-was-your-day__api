@@ -19,6 +19,7 @@ using BusinessLogic;
 using AutoMapper;
 using System.IdentityModel.Tokens.Jwt;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Api
 {
@@ -66,7 +67,20 @@ namespace Api
             }
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
+            app.UseSwagger(c =>
+            {
+                c.PreSerializeFilters.Add((document, _) =>
+                {
+                    var paths = document.Paths.ToDictionary(item => item.Key.ToLowerInvariant(), item => item.Value);
+
+                    document.Paths.Clear();
+
+                    foreach (var pathItem in paths)
+                    {
+                        document.Paths.Add(pathItem.Key, pathItem.Value);
+                    }
+                });
+            });
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
@@ -91,10 +105,12 @@ namespace Api
         {
             // Business Logic DI
             services.AddScoped<ILoginService, LoginService>();
+            services.AddScoped<IMoodService, MoodService>();
 
             // Data Access DI
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IMoodRepository, MoodRepository>();
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
             // Infrastructure DI
@@ -148,6 +164,7 @@ namespace Api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "How was your day API", Version = "v1" });
+
                 c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
                 {
                     Description = "JWT Bearer Auth",
@@ -156,6 +173,7 @@ namespace Api
                     Type = SecuritySchemeType.Http,
                     Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower()
                 });
+
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -173,6 +191,8 @@ namespace Api
                         new List<string>()
                     }
                 });
+
+                c.EnableAnnotations();
             });
         }
     }

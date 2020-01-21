@@ -15,15 +15,22 @@ using AutoFixture.AutoMoq;
 using System;
 using DataAccess.Exceptions;
 using BusinessLogic.Exceptions;
+using System.Linq;
 
 namespace BusinessLogic.Tests
 {
-    public class LoginService
+    public class LoginServiceTests
     {
         [Fact]
         public void Authenticate_User_With_Credentials()
         {
             var fixtureMock = new Fixture().Customize(new AutoMoqCustomization());
+
+            fixtureMock.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                        .ForEach(b => fixtureMock.Behaviors.Remove(b));
+
+            fixtureMock.Behaviors.Add(new OmitOnRecursionBehavior());
+
             var user = fixtureMock.Create<DataAccess.Entities.User>();
             var token = fixtureMock.Create<string>();
 
@@ -55,6 +62,12 @@ namespace BusinessLogic.Tests
         public void Should_Throw_Exception_For_User_With_Invalid_Credentials()
         {
             var fixtureMock = new Fixture().Customize(new AutoMoqCustomization());
+
+            fixtureMock.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                        .ForEach(b => fixtureMock.Behaviors.Remove(b));
+
+            fixtureMock.Behaviors.Add(new OmitOnRecursionBehavior());
+
             var user = fixtureMock.Create<DataAccess.Entities.User>();
             var token = fixtureMock.Create<string>();
 
@@ -77,6 +90,12 @@ namespace BusinessLogic.Tests
         public void Should_Throw_Exception_For_Non_Existent_Email()
         {
             var fixtureMock = new Fixture().Customize(new AutoMoqCustomization());
+
+            fixtureMock.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                        .ForEach(b => fixtureMock.Behaviors.Remove(b));
+
+            fixtureMock.Behaviors.Add(new OmitOnRecursionBehavior());
+
             var user = fixtureMock.Create<DataAccess.Entities.User>();
             var token = fixtureMock.Create<string>();
 
@@ -113,7 +132,7 @@ namespace BusinessLogic.Tests
 
             var options = Options.Create(fixture.Create<Configuration>());
 
-            return new BusinessLogic.LoginService(uow, mapper, tokenGeneratorMock.Object, options);
+            return new LoginService(uow, mapper, tokenGeneratorMock.Object, options);
         }
     }
 }

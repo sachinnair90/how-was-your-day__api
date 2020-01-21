@@ -1,20 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DataAccess
 {
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
     {
         private readonly AppDBContext _context;
+
         public Repository(AppDBContext context)
         {
             this._context = context;
         }
 
-        public IEnumerable<TEntity> GetAll()
+        public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return _context.Set<TEntity>().AsNoTracking().AsEnumerable();
+            var entities = await GetEnitity().AsNoTracking().ToListAsync();
+
+            return entities.AsEnumerable();
         }
 
         public TEntity Add(TEntity entity)
@@ -49,7 +53,17 @@ namespace DataAccess
 
         protected IQueryable<TEntity> GetQueryable()
         {
-            return _context.Set<TEntity>().AsQueryable();
+            return GetEnitity().AsQueryable();
+        }
+
+        public Task<int> GetCountAsync()
+        {
+            return GetEnitity().CountAsync();
+        }
+
+        private DbSet<TEntity> GetEnitity()
+        {
+            return _context.Set<TEntity>();
         }
     }
 }

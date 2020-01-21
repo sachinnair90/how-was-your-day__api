@@ -11,16 +11,16 @@ using Xunit;
 
 namespace Infrastructure.Tests
 {
-    public class TokenGenerator
+    public class TokenGeneratorTests
     {
         private readonly ITokenGenerator _tokenGenerator;
         private readonly Mock<JwtSecurityTokenHandler> _tokenHandler;
 
-        public TokenGenerator()
+        public TokenGeneratorTests()
         {
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
             _tokenHandler = fixture.Create<Mock<JwtSecurityTokenHandler>>();
-            _tokenGenerator = new Infrastructure.TokenGenerator(_tokenHandler.Object);
+            _tokenGenerator = new TokenGenerator(_tokenHandler.Object);
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace Infrastructure.Tests
             _tokenHandler.Setup(x => x.CreateToken(It.IsAny<SecurityTokenDescriptor>())).Returns(securityToken.Object);
             _tokenHandler.Setup(x => x.WriteToken(It.IsAny<SecurityToken>())).Returns(tokenString);
 
-            var result = _tokenGenerator.GetToken(new []{ claim }, fixture.Create<int>(), fixture.Create<string>());
+            var result = _tokenGenerator.GetToken(new[] { claim }, fixture.Create<int>(), fixture.Create<string>());
 
             result.Should().BeEquivalentTo(tokenString);
         }

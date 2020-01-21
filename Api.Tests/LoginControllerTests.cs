@@ -1,23 +1,26 @@
+using Api.Controllers;
 using Api.Parameters;
 using AutoFixture;
+using AutoFixture.AutoMoq;
 using BusinessLogic.DTO;
 using BusinessLogic.Exceptions;
 using BusinessLogic.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Moq;
 using Xunit;
 
 namespace Api.Tests
 {
-    public class LoginController
+    public class LoginControllerTests
     {
         private Mock<ILoginService> _service;
-        private Controllers.LoginController _controller;
+        private readonly LoginController _controller;
 
-        public LoginController()
+        public LoginControllerTests()
         {
-            SetupData();
+            _controller = SetupData();
         }
 
         [Fact]
@@ -61,12 +64,18 @@ namespace Api.Tests
         }
 
         #region Setup Data
-        private void SetupData()
-        {
-            _service = new Mock<ILoginService>();
 
-            _controller = new Controllers.LoginController(_service.Object);
+        private LoginController SetupData()
+        {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+
+            _service = fixture.Freeze<Mock<ILoginService>>();
+
+            fixture.Customize<BindingInfo>(c => c.OmitAutoProperties());
+
+            return fixture.Create<LoginController>();
         }
-        #endregion
+
+        #endregion Setup Data
     }
 }

@@ -7,11 +7,13 @@ namespace DataAccess
     {
         private readonly AppDBContext _context;
         public IUserRepository UserRepository { get; }
+        public IMoodRepository MoodRepository { get; }
 
-        public UnitOfWork(AppDBContext context, IUserRepository userRepository)
+        public UnitOfWork(AppDBContext context, IUserRepository userRepository, IMoodRepository moodRepository)
         {
             _context = context;
             UserRepository = userRepository;
+            MoodRepository = moodRepository;
         }
 
         public async Task<int> SaveChangesAsync()

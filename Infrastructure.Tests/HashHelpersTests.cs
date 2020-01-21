@@ -7,12 +7,13 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Tests
 {
-    public class HashHelpers
+    public class HashHelpersTests
     {
         private readonly IHashHelpers hashHelpers;
-        public HashHelpers()
+
+        public HashHelpersTests()
         {
-            hashHelpers = new Infrastructure.HashHelpers();
+            hashHelpers = new HashHelpers();
         }
 
         [Fact]

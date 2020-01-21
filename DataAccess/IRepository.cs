@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DataAccess
 {
     public interface IRepository<TEntity> where TEntity : class, new()
     {
-        IEnumerable<TEntity> GetAll();
+        Task<IEnumerable<TEntity>> GetAllAsync();
 
         TEntity Add(TEntity entity);
 
@@ -16,6 +17,6 @@ namespace DataAccess
 
         TEntity Delete(TEntity entity);
 
-        void Delete(IEnumerable<TEntity> entities);
+        Task<int> GetCountAsync();
     }
 }
