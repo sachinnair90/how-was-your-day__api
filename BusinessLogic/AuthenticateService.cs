@@ -13,14 +13,14 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic
 {
-    public class LoginService : ILoginService
+    public class AuthenticateService : IAuthenticateService
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly ITokenGenerator tokenGenerator;
         private readonly IOptions<Configuration> options;
 
-        public LoginService(IUnitOfWork unitOfWork, IMapper mapper, ITokenGenerator tokenGenerator, IOptions<Configuration> options)
+        public AuthenticateService(IUnitOfWork unitOfWork, IMapper mapper, ITokenGenerator tokenGenerator, IOptions<Configuration> options)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;

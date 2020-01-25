@@ -19,7 +19,7 @@ using System.Linq;
 
 namespace BusinessLogic.Tests
 {
-    public class LoginServiceTests
+    public class AuthenticationServiceTests
     {
         [Fact]
         public void Authenticate_User_With_Credentials()
@@ -114,7 +114,7 @@ namespace BusinessLogic.Tests
             action.Should().ThrowExactly<Exceptions.UserNotFoundException>();
         }
 
-        private ILoginService SetupData(Mock<IUserRepository> repoMock, string token = null)
+        private IAuthenticateService SetupData(Mock<IUserRepository> repoMock, string token = null)
         {
             var mockMapper = new MapperConfiguration(cfg => cfg.AddProfile(new DataMapper()));
 
@@ -132,7 +132,7 @@ namespace BusinessLogic.Tests
 
             var options = Options.Create(fixture.Create<Configuration>());
 
-            return new LoginService(uow, mapper, tokenGeneratorMock.Object, options);
+            return new AuthenticateService(uow, mapper, tokenGeneratorMock.Object, options);
         }
     }
 }

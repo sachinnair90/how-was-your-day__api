@@ -13,18 +13,18 @@ using Xunit;
 
 namespace Api.Tests
 {
-    public class LoginControllerTests
+    public class AuthenticateControllerTests
     {
-        private Mock<ILoginService> _service;
-        private readonly LoginController _controller;
+        private Mock<IAuthenticateService> _service;
+        private readonly AuthenticateController _controller;
 
-        public LoginControllerTests()
+        public AuthenticateControllerTests()
         {
             _controller = SetupData();
         }
 
         [Fact]
-        public void Should_Login_User_With_Valid_Credentials()
+        public void Should_Authenticate_With_Valid_Credentials()
         {
             var fixture = new Fixture();
             var authenticatedUser = fixture.Create<AuthenticatedUser>();
@@ -32,7 +32,7 @@ namespace Api.Tests
             _service.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(authenticatedUser);
 
-            var result = _controller.Login(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult() as OkObjectResult;
+            var result = _controller.Authenticate(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult() as OkObjectResult;
 
             (result.Value as AuthenticatedUser)?.Should().BeEquivalentTo(authenticatedUser);
         }
@@ -45,7 +45,7 @@ namespace Api.Tests
             _service.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws<InvalidCredentialsException>();
 
-            var result = _controller.Login(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult();
+            var result = _controller.Authenticate(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult();
 
             result.Should().BeOfType<UnauthorizedResult>();
         }
@@ -58,22 +58,22 @@ namespace Api.Tests
             _service.Setup(x => x.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
                 .Throws<UserNotFoundException>();
 
-            var result = _controller.Login(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult();
+            var result = _controller.Authenticate(fixture.Create<UserAuthenticationParameters>()).GetAwaiter().GetResult();
 
             result.Should().BeOfType<NotFoundResult>();
         }
 
         #region Setup Data
 
-        private LoginController SetupData()
+        private AuthenticateController SetupData()
         {
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            _service = fixture.Freeze<Mock<ILoginService>>();
+            _service = fixture.Freeze<Mock<IAuthenticateService>>();
 
             fixture.Customize<BindingInfo>(c => c.OmitAutoProperties());
 
-            return fixture.Create<LoginController>();
+            return fixture.Create<AuthenticateController>();
         }
 
         #endregion Setup Data

@@ -104,7 +104,7 @@ namespace Api
         private static void AddDependencies(IServiceCollection services)
         {
             // Business Logic DI
-            services.AddScoped<ILoginService, LoginService>();
+            services.AddScoped<IAuthenticateService, AuthenticateService>();
             services.AddScoped<IMoodService, MoodService>();
 
             // Data Access DI
