@@ -111,6 +111,7 @@ namespace Api
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IMoodRepository, MoodRepository>();
+            services.AddScoped<IUserMoodRepository, UserMoodRepository>();
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
             // Infrastructure DI

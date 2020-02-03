@@ -8,7 +8,7 @@ namespace DataAccess.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public decimal Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
         [ForeignKey("User")]

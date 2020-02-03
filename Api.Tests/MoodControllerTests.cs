@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using Api.Parameters;
+using AutoFixture;
 using AutoFixture.AutoMoq;
 using BusinessLogic.DTO;
 using BusinessLogic.Interfaces;
@@ -30,6 +31,22 @@ namespace Api.Tests
             service.Setup(x => x.GetAllMoodsAsync()).ReturnsAsync(moods);
 
             var result = controller.Get().GetAwaiter().GetResult();
+
+            result.Should().BeOfType<OkObjectResult>();
+        }
+
+        [Fact]
+        public void Get_Moods_For_The_User()
+        {
+            var fixture = new Fixture();
+
+            var parameter = fixture.Create<FilterMoodRequestParameter>();
+
+            var moods = fixture.CreateMany<UserMoodDetails>();
+
+            service.Setup(x => x.GetMoodsForUser(It.IsAny<FilterMoodParameter>())).ReturnsAsync(moods);
+
+            var result = controller.Get(parameter).GetAwaiter().GetResult();
 
             result.Should().BeOfType<OkObjectResult>();
         }

@@ -12,8 +12,6 @@ namespace DataAccess.Tests
     public class UnitOfWorkTests
     {
         private readonly IUnitOfWork unitOfWork;
-        private Mock<IUserRepository> userRepository;
-        private Mock<IMoodRepository> moodRepository;
 
         public UnitOfWorkTests()
         {
@@ -33,6 +31,7 @@ namespace DataAccess.Tests
         }
 
         #region Setup Data
+
         private IUnitOfWork SetupData()
         {
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
@@ -45,11 +44,11 @@ namespace DataAccess.Tests
 
             dbContext.Database.EnsureCreated();
 
-            userRepository = fixture.Create<Mock<IUserRepository>>();
-            moodRepository = fixture.Create<Mock<IMoodRepository>>();
+            fixture.Register(() => dbContext);
 
-            return new UnitOfWork(dbContext, userRepository.Object, moodRepository.Object);
+            return fixture.Create<UnitOfWork>();
         }
-        #endregion
+
+        #endregion Setup Data
     }
 }

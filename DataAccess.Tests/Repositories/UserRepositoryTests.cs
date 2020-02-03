@@ -10,6 +10,7 @@ using DataAccess.Exceptions;
 using System.Collections.Generic;
 using DataAccess.Entities;
 using DataAccess.Repositories;
+using AutoFixture.AutoMoq;
 
 namespace DataAccess.Tests
 {
@@ -92,6 +93,8 @@ namespace DataAccess.Tests
 
         private IUnitOfWork SetupRepository()
         {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+
             var options = new DbContextOptionsBuilder<AppDBContext>()
                 .UseInMemoryDatabase(databaseName: nameof(AppDBContext))
                 .Options;
@@ -101,9 +104,10 @@ namespace DataAccess.Tests
             _dbContext.Database.EnsureCreated();
 
             var userRepository = new UserRepository(_dbContext, new HashHelpers());
-            var moodRepository = new MoodRepository(_dbContext);
+            var moodRepo = fixture.Create<MoodRepository>();
+            var userMoodRepository = fixture.Create<UserMoodRepository>();
 
-            return new UnitOfWork(_dbContext, userRepository, moodRepository);
+            return new UnitOfWork(_dbContext, userRepository, moodRepo, userMoodRepository);
         }
 
         private List<User> AddUsersToDB(out string defaultPassword)

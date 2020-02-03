@@ -7,6 +7,7 @@ namespace DataAccess
     {
         public IUserRepository UserRepository { get; }
         public IMoodRepository MoodRepository { get; }
+        public IUserMoodRepository UserMoodRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

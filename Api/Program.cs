@@ -39,7 +39,7 @@ namespace Api
             catch (Exception ex)
             {
                 var logger = services.GetRequiredService<ILogger<Program>>();
-                logger.LogError(ex, "An error occured - DB Creation");
+                logger.LogError(ex, "An error occurred - DB Creation");
             }
         }
 

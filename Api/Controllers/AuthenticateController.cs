@@ -28,7 +28,7 @@ namespace Api.Controllers
             OperationId = "Authenticate",
             Tags = new[] { "Auth" }
         )]
-        [SwaggerResponse(StatusCodes.Status200OK, "Autheticated", typeof(AuthenticatedUser))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Authenticated", typeof(AuthenticatedUser))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Invalid user credentials")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "User was not found with supplied credentials")]
         [Produces(MediaTypeNames.Application.Json)]
@@ -59,7 +59,7 @@ namespace Api.Controllers
             OperationId = "IsAuthenticated",
             Tags = new[] { "Auth" }
         )]
-        [SwaggerResponse(StatusCodes.Status200OK, "Autheticated")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Authenticated")]
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Unauthenticated")]
         [HttpGet, Route("IsAuthenticated")]
         public IActionResult IsAuthenticated()
