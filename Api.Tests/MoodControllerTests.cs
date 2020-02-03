@@ -35,21 +35,21 @@ namespace Api.Tests
             result.Should().BeOfType<OkObjectResult>();
         }
 
-        [Fact]
-        public void Get_Moods_For_The_User()
-        {
-            var fixture = new Fixture();
+        //[Fact]
+        //public void Get_Moods_For_The_User()
+        //{
+        //    var fixture = new Fixture();
 
-            var parameter = fixture.Create<FilterMoodRequestParameter>();
+        //    var parameter = fixture.Create<FilterMoodRequestParameter>();
 
-            var moods = fixture.CreateMany<UserMoodDetails>();
+        //    var moods = fixture.CreateMany<UserMoodDetails>();
 
-            service.Setup(x => x.GetMoodsForUser(It.IsAny<FilterMoodParameter>())).ReturnsAsync(moods);
+        //    service.Setup(x => x.GetMoodsForUser(It.IsAny<FilterMoodParameter>())).ReturnsAsync(moods);
 
-            var result = controller.Get(parameter).GetAwaiter().GetResult();
+        //    var result = controller.Get(parameter).GetAwaiter().GetResult();
 
-            result.Should().BeOfType<OkObjectResult>();
-        }
+        //    result.Should().BeOfType<OkObjectResult>();
+        //}
 
         #region Setup Data
 
