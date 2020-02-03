@@ -10,19 +10,19 @@ using DataAccess.Exceptions;
 using System.Collections.Generic;
 using DataAccess.Entities;
 using DataAccess.Repositories;
+using AutoFixture.AutoMoq;
 
 namespace DataAccess.Tests
 {
-    public class UserRepository : IDisposable
+    public class UserRepositoryTests : IDisposable
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly DbContext _dbContext;
+        private AppDBContext _dbContext;
         private readonly IUserRepository _userRepository;
 
-        public UserRepository()
+        public UserRepositoryTests()
         {
-            _unitOfWork = SetupRepository(out var dbContext);
-            _dbContext = dbContext;
+            _unitOfWork = SetupRepository();
             _userRepository = _unitOfWork.UserRepository;
         }
 
@@ -90,26 +90,34 @@ namespace DataAccess.Tests
         }
 
         #region Data Setup Methods
-        private IUnitOfWork SetupRepository(out DbContext dbContext)
+
+        private IUnitOfWork SetupRepository()
         {
+            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+
             var options = new DbContextOptionsBuilder<AppDBContext>()
                 .UseInMemoryDatabase(databaseName: nameof(AppDBContext))
                 .Options;
 
-            dbContext = new AppDBContext(options);
+            _dbContext = new AppDBContext(options);
 
-            dbContext.Database.EnsureCreated();
+            _dbContext.Database.EnsureCreated();
 
-            var userRepository = new Repositories.UserRepository(dbContext as AppDBContext, new HashHelpers());
+            var userRepository = new UserRepository(_dbContext, new HashHelpers());
+            var moodRepo = fixture.Create<MoodRepository>();
+            var userMoodRepository = fixture.Create<UserMoodRepository>();
 
-            var unitOfWork = new UnitOfWork(dbContext as AppDBContext, userRepository);
-
-            return unitOfWork;
+            return new UnitOfWork(_dbContext, userRepository, moodRepo, userMoodRepository);
         }
 
         private List<User> AddUsersToDB(out string defaultPassword)
         {
             var fixture = new Fixture();
+
+            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList()
+                        .ForEach(b => fixture.Behaviors.Remove(b));
+
+            fixture.Behaviors.Add(new OmitOnRecursionBehavior(1));
 
             var defaultUserPassword = fixture.Create<string>();
             defaultPassword = defaultUserPassword;
@@ -120,6 +128,7 @@ namespace DataAccess.Tests
                 .With(x => x.Email, () => fixture.Create<MailAddress>().Address)
                 .With(x => x.CreatedAt, dateTime)
                 .With(x => x.UpdatedAt, dateTime)
+                .Without(x => x.UserMoods)
                 .CreateMany().ToList();
 
             var hashHelpers = new HashHelpers();
@@ -137,9 +146,11 @@ namespace DataAccess.Tests
 
             return users;
         }
-        #endregion
+
+        #endregion Data Setup Methods
 
         #region Cleanup
+
         public void Dispose()
         {
             Dispose(true);
@@ -148,17 +159,18 @@ namespace DataAccess.Tests
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && _dbContext != null)
             {
                 _dbContext.Database.EnsureDeleted();
                 _dbContext.Dispose();
             }
         }
 
-        ~UserRepository()
+        ~UserRepositoryTests()
         {
             Dispose(false);
         }
-        #endregion
+
+        #endregion Cleanup
     }
 }

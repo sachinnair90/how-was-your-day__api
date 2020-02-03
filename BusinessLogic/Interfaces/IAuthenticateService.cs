@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.Interfaces
 {
-    public interface ILoginService
+    public interface IAuthenticateService
     {
         Task<AuthenticatedUser> Authenticate(string email, string password);
     }

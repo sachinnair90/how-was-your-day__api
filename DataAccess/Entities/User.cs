@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -36,5 +37,7 @@ namespace DataAccess.Entities
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime UpdatedAt { get; set; }
+
+        public virtual List<UserMood> UserMoods { get; set; }
     }
 }

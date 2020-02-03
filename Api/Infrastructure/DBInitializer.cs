@@ -11,6 +11,24 @@ namespace Api.Infrastructure
     {
         public static void Initialize(IUnitOfWork unitOfWork, IHashHelpers hashHelpers, IOptions<Configuration> options)
         {
+            SeedUsers(unitOfWork, hashHelpers, options);
+            SeedMoods(unitOfWork, options);
+
+            unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
+        }
+
+        private static void SeedMoods(IUnitOfWork unitOfWork, IOptions<Configuration> options)
+        {
+            if (unitOfWork.MoodRepository.GetCountAsync().GetAwaiter().GetResult() >= options.Value.Moods.Count)
+            {
+                return;
+            }
+
+            options.Value.Moods.ForEach(x => unitOfWork.MoodRepository.Add(new DataAccess.Entities.Mood { Name = x.Name, Description = x.Description }));
+        }
+
+        private static void SeedUsers(IUnitOfWork unitOfWork, IHashHelpers hashHelpers, IOptions<Configuration> options)
+        {
             if (unitOfWork.UserRepository.AnyUserExists().GetAwaiter().GetResult())
             {
                 return;
@@ -32,8 +50,6 @@ namespace Api.Infrastructure
             };
 
             unitOfWork.UserRepository.Add(users);
-
-            unitOfWork.SaveChangesAsync().GetAwaiter().GetResult();
         }
     }
 }
